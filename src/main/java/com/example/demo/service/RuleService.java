@@ -29,33 +29,29 @@ public class RuleService {
         RuleComparator ruleComparator=new RuleComparator();
         rules.sort(ruleComparator);
         for (Rule r : rules) {
-            boolean isInCache = redisTemplate.hasKey(r.getId().toString());
-            if(!isInCache){
-                String[] whiteList=r.getDevice_id_list().split(" ");
-                HashSet<String> set = new HashSet<>(Arrays.asList(whiteList));
-                operations.set(r.getId().toString(),set);
-            }
-            boolean hasKey = Objects.requireNonNull(operations.get(r.getId().toString())).contains(device_id);
-            if (hasKey) {
-                hit.setDownload_url(r.getDownload_url());
-                hit.setMd5(r.getMd5());
-                hit.setUpdate_version_code(r.getUpdate_version_code());
-                hit.setTitle(r.getTitle());
-                hit.setUpdate_tips(r.getUpdate_tips());
-                return hit;
+            if(operations.get(r.getId().toString())!=null) {
+                boolean hasKey = Objects.requireNonNull(operations.get(r.getId().toString())).contains(device_id);
+                if (hasKey) {
+                    return getHit(hit, r);
+                }
             }
 
             if(ruleComparator.compareId(update_version_code,r.getMin_update_version_code())==-1 || ruleComparator.compareId(update_version_code,r.getMax_update_version_code())==1)
                 continue;
             if(device_platform.equals("Android")&&(os_api<r.getMin_os_api()||os_api>r.getMax_os_api()))
                 continue;
-            hit.setDownload_url(r.getDownload_url());
-            hit.setMd5(r.getMd5());
-            hit.setUpdate_version_code(r.getUpdate_version_code());
-            hit.setTitle(r.getTitle());
-            hit.setUpdate_tips(r.getUpdate_tips());
-            return hit;
+            return getHit(hit, r);
         }
+        return hit;
+    }
+
+    private Hit getHit(Hit hit, Rule r) {
+        hit.setDownload_url(r.getDownload_url());
+        hit.setMd5(r.getMd5());
+        hit.setUpdate_version_code(r.getUpdate_version_code());
+        hit.setTitle(r.getTitle());
+        hit.setUpdate_tips(r.getUpdate_tips());
+        ruleMapper.updateDownloadTimes(r.getId(),r.getDownload_times()+1);
         return hit;
     }
 }

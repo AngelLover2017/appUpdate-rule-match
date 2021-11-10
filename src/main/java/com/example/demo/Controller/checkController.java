@@ -17,7 +17,7 @@ public class checkController {
     private RuleService ruleService;
     @GetMapping
     Hit update(@RequestParam String version, @RequestParam String device_platform,
-               @RequestParam String device_id, @RequestParam Integer os_api,
+               @RequestParam String device_id, @RequestParam(required = false) Integer os_api,
                @RequestParam String channel, @RequestParam String version_code,
                @RequestParam String update_version_code, @RequestParam Integer aid,
                @RequestParam Integer cpu_arch){
