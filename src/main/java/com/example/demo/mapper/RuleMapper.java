@@ -1,6 +1,7 @@
 package com.example.demo.mapper;
 
 import com.example.demo.entity.Rule;
+import com.example.demo.entity.__Rule;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -16,4 +17,10 @@ public interface RuleMapper {
     List<Rule> findCertainRules(Integer aid, String device_platform, String cpu_arch,String channel);
     @Update("update rule set download_times=#{download_times} where id=#{id}")
     void updateDownloadTimes(Integer id , Integer download_times);
+
+    @Select("SELECT id,device_id_list FROM `test`.`rule` WHERE `id`>#{id} AND STATUS = 0 LIMIT #{num}")
+    List<__Rule> getPartOfDeviceIdList(Integer id, Integer num);
+
+    @Select("SELECT COUNT(*) FROM `test`.`rule`")
+    int getRulesNum();
 }
